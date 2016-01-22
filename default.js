@@ -35,6 +35,14 @@ if (xKey === "step") {
 var timeOpt = "absolute"
 var rootFolder = "../results/"
 
+var getSubsampleRate = function(len) {
+  if (len < 500) {
+    return 1;
+  } else {
+    return Math.floor(len / 500);
+  }
+}
+
 // Parse CSV data.
 var parseData = function(csvData) {
   // Look up the data key.
@@ -46,13 +54,23 @@ var parseData = function(csvData) {
     }
   }
 
-  // Assemble array into x, y tuples.
-  var displayValues = csvData.map(function(item) {
-    return {
-      "x": item[xKey],
-      "y": item[yKey]
+  var subsample = getSubsampleRate(csvData.length);
+  var displayValues = [];
+  for (var ii = 0; ii < csvData.length; ++ii) {
+    if (ii % subsample == 0) {
+      displayValues.push({
+        "x": csvData[ii][xKey],
+        "y": csvData[ii][yKey]
+      })
     }
-  });
+  }
+  // // Assemble array into x, y tuples.
+  // var displayValues = csvData.map(function(item) {
+  //   return {
+  //     "x": item[xKey],
+  //     "y": item[yKey]
+  //   }
+  // });
 
   // Assemble data.
   var data = [{
