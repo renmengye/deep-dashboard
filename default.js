@@ -156,8 +156,8 @@ var addPlainLog = function(placeholder, filename, name) {
             var lastModified = request.getResponseHeader("Last-Modified");
             allPanels[panelId].lastModified = lastModified;
             lines = data.split("\n");
-            // Maximum 50 lines.
-            lines = lines.slice(Math.max(0, lines.length - 100));
+            // Maximum 500 lines.
+            lines = lines.slice(Math.max(0, lines.length - 500));
             log = lines.join("\n")
             d3.select("#textarea_" + panelId)
               .html(log)
