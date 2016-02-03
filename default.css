@@ -18,10 +18,15 @@ html, body {
 .dashed {
     stroke-dasharray: 5,5;
 }
-.chart {
+.panel {
     width: 100%;
     height: 400px;
     margin: 10px 0 50px 0;
+}
+
+.raw_log {
+    margin-left: 80px;
+    height: 400px;
 }
 
 .experiment {
