@@ -171,9 +171,32 @@ var addPlainLog = function(placeholder, filename, name) {
         error: function(e) {throw e;}
     });
   };
-  //update();
+  update();
   setInterval(update, 5000);
-}
+};
+
+var addImage = function(placeholder, filename, name) {
+  var panelId = getPanelId(filename);
+  allPanels[panelId] = {};
+  d3.select("#" + placeholder).append("h2").html(name);
+  d3.select("#" + placeholder).append("div")
+                      .attr("id", "panel_" + panelId)
+                      .attr("class", "panel")
+                      .append("img")
+                      .attr("width", "800")
+                      .attr("src", filename)
+                      .attr("id", "img_" + panelId)
+                      .call(function() {
+                        updateLastModified(filename, true);
+                      });
+
+  var update = function() {
+    var date = new Date();
+    d3.select("#" + "img_" + panelId)[0].src = filename + "?ts=" + date.getTime();
+    setTimeout(update, 5000);
+  };
+  update();
+};
 
 // Add a chart.
 var addChart = function(placeholder, filename, name) {
@@ -261,7 +284,9 @@ var addExperiment = function(experimentId) {
           addChart(placeholder, fname, name);
         }
         else if (csvData[ii].type === "plain") {
-          addPlainLog(placeholder, fname, name)
+          addPlainLog(placeholder, fname, name);
+        } else if (csvData[ii].type == "image") {
+          addImage(placeholder, fname, name);
         }
         
       }
