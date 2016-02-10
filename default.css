@@ -32,6 +32,10 @@ html, body {
     height: 400px;
 }
 
+.img_log {
+    width: 100%;
+}
+
 .experiment {
     border-bottom: 2px solid #ccc;
 }
