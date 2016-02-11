@@ -144,7 +144,7 @@ format.
 filename,type,name
 xent1.csv,csv,training cross entropy
 xent2.csv,csv,validation cross entropy
-img.png, image, output
+img.png,image,output
 ...
 ```
 
