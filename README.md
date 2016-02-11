@@ -142,8 +142,9 @@ format.
 
 ```csv
 filename,type,name
-fname1.csv,csv,training cross entropy
-fname2.csv,csv,validation cross entropy
+xent1.csv,csv,training cross entropy
+xent2.csv,csv,validation cross entropy
+img.png, image, output
 ...
 ```
 
