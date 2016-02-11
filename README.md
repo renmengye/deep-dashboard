@@ -3,6 +3,11 @@ A better visualization tool for training machine learning models.
 
 ## Introduction
 
+Deep dashboard currently supports displaying three types of visualizations:
+- Time series data, in CSV format.
+- Raw plain text data
+- Image data
+
 ## Installation
 
 * Install [Apache 2](https://httpd.apache.org/docs/2.4/install.html)
@@ -29,7 +34,7 @@ The dashboard interacts with your training program through static files on the
 disk, as long as you know how to write a plain text file or an image to the
 disk, you can watch your model being trained in real time.
 
-Here is the file structure:
+### File structure
 
 - */var/www/html/*
     - *visualizer*: javascripts, css, and html.
@@ -42,12 +47,12 @@ Here is the file structure:
         - *utils.js*: Utility functions.
 
     - *results*: all your experiments files
-        - *catalog* CSV file listing all the folders here.
+        - *catalog*: CSV file listing all the folders here.
         - *experiment_id_1*
-            - *catalog* CSV file listing all the files here.
-            - *raw.log* Plain text file to display as plain text.
-            - *curve.csv* CSV file to display as a time series curve.
-            - *plot.png* Image file to dispay as an image.
+            - *catalog*: CSV file listing all the files here.
+            - *raw.log*: Plain text file to display as plain text.
+            - *curve.csv*: CSV file to display as a time series curve.
+            - *plot.png*: Image file to dispay as an image.
         - *experiment_id_2*
             - *catalog*
             - *raw.log*
@@ -56,3 +61,31 @@ Here is the file structure:
 
 To visaulize experment_id_1, you can always go to [http://localhost/visualizer?id=experiment_id_1](http://localhost/visualizer?id=experiment_id_1)
 
+### Frontend (javascript)
+
+You can customize the dashboard through modifying *index.html*.
+
+```
+$(function(){
+    var params = getSearchParameters();
+    var dashboard = new Dashboard("../results/", params.id, "#content", {
+        xKey: "time",
+        timeout: 5000,
+        maxLines: 500,
+        maxDatapoints: 500
+    });
+});
+```
+There are four arguments to initialize a new dashboard object.
+- "../results/" is the root folder where all the experiments are stored.
+- Experiment ID
+- DOM selector, where to place the dashboard.
+- Extra options
+    - xKey: the key name for the x-axis, "step" or "time". "step" will display
+    the step number, and "time" will display the absolute time.
+    - timeout: automatic refresh rate, in milliseconds.
+    - maxLines: maximum number of lines to display to a plain text file.
+    - maxDatapoints: maximum number of data points to display in one time 
+    series curve.
+
+### Backend (your program)
