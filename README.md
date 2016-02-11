@@ -3,7 +3,7 @@ A better visualization tool for training machine learning models.
 
 ## Introduction
 
-Tired of watching un-informative commandline console?
+Tired of watching un-informative command line console?
 
 Tired of the line limit of ssh screen?
 
@@ -32,7 +32,7 @@ sudo apt-get install apache2
 ```
 
 * Clone this repository under Apache root folder
-    * It is usaully in */var/www* or */var/www/html*.
+    * It is usually in */var/www* or */var/www/html*.
     * For Toronto users, your Apache root is */u/$USER/public_html*).
 
 ```shell
@@ -93,19 +93,19 @@ under the hood.
             - *catalog*: CSV file listing all the files here.
             - *raw.log*: Plain text file to display as plain text.
             - *curve.csv*: CSV file to display as a time series curve.
-            - *plot.png*: Image file to dispay as an image.
+            - *plot.png*: Image file to display as an image.
         - *experiment_id_2*
             - *catalog*
             - *raw.log*
             - *curve.csv*
             - *plot.png*
 
-To visaulize experment_id_1, you can always go to [http://localhost/visualizer?id=experiment_id_1](http://localhost/visualizer?id=experiment_id_1)
+To visualize experiment_id_1, you can always go to [http://localhost/visualizer?id=experiment_id_1](http://localhost/visualizer?id=experiment_id_1)
 
 ### Frontend (javascript)
 
 You can customize the dashboard through modifying *index.html*. The following
-code is currently in *index.html* to initialie the dashboard object.
+code is currently in *index.html* to initialize the dashboard object.
 
 ```javascript
 $(function(){
