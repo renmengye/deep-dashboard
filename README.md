@@ -6,6 +6,7 @@ A better visualization tool for training machine learning models.
 ## Installation
 
 * Install [Apache 2](https://httpd.apache.org/docs/2.4/install.html)
+
 For Ubuntu,
 ```
 sudo apt-get install apache2
@@ -19,7 +20,7 @@ mkdir results
 cp -R visualizer/example results
 chmod -R +777 results
 ```
-* Now browse http://localhost/visualizer?id=example
+* Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
 
 ## Couple with your training program
 
@@ -30,12 +31,14 @@ disk, you can watch your model being trained in real time.
 Here is the file structure:
 
 - */var/www/html/*
--- *visualizer*: javascripts, css, and html.
---- *lib*: jquery, nvd3, d3.
---- *index.html*
+    - *visualizer*: javascripts, css, and html.
+        - *lib*: jquery, nvd3, d3.
+        - *index.html*
+        - *dashboard.js*
+        - *utils.js*
 
--- *results*: all your experiments files
---- *experiment_id_1*
----- *raw.log* Plain text file to display as plain text.
----- *curve.csv* CSV file to display as a time series curve.
----- *plot.png* Image file to dispay as an image.
+    - *results*: all your experiments files
+        - *experiment_id_1*
+            - *raw.log* Plain text file to display as plain text.
+            - *curve.csv* CSV file to display as a time series curve.
+            - *plot.png* Image file to dispay as an image.
