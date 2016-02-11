@@ -73,8 +73,7 @@ INFO: 13:59:36 vae.py:263 Dashboard: http://localhost/visualizer?id=vae_mnist-20
 
 Now you are ready to add your own job to the dashboard! This section will 
 brief you through the architecture of dashboard, so you know what is going on
-under the hood. In short, to add your own job, you simply need to write some
-files to the right place, e.g. the training data points to a CSV file.
+under the hood.
 
 ### File structure
 
@@ -133,12 +132,12 @@ There are four arguments to initialize a new dashboard object.
     series curve.
 
 ### Backend (your program)
-Last step to hook up the dashboard is to add some lines in your training 
-program.
+Last step to hook up the dashboard is to modify your training program.
 
 #### Catalog format
 Each experiment folder contains a *catalog* file. It is in the following CSV
-format.
+format. In short, to add your own job, you simply need to write some files to 
+the right place, e.g. the training data points to a CSV file.
 
 ```csv
 filename,type,name
