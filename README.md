@@ -17,8 +17,10 @@ For Ubuntu,
 sudo apt-get install apache2
 ```
 
-* Clone this repository under Apache root folder (usaully /var/www/html,
-Toronto users, your Apache root is /u/$USER/public_html).
+* Clone this repository under Apache root folder
+    * It is usaully in /var/www or /var/www/html.
+    * For Toronto users, your Apache root is /u/$USER/public_html).
+    
 ```shell
 set APACHE_ROOT=/var/www/html
 cd $APACHE_ROOT
