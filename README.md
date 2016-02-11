@@ -135,3 +135,49 @@ There are four arguments to initialize a new dashboard object.
 ### Backend (your program)
 Last step to hook up the dashboard is to add some lines in your training 
 program.
+
+#### Catalog format
+Each experiment folder contains a *catalog* file. It is in the following CSV
+format.
+
+```csv
+filename,type,name
+fname1.csv,csv,training cross entropy
+fname2.csv,csv,validation cross entropy
+...
+```
+
+Each row contains three columns, the path to the file, the type of the file, 
+and the name of the visualization. 
+
+The type of the file can be one of the three:
+- *image*
+- *csv*
+- *plain*
+
+Every time you add a new visualization,
+remember to register it in the catalog.
+
+#### Adding time series visualization
+1. Register in catalog.
+2. Write a CSV file of the following format:
+
+```csv
+step,time,$y-axis$
+0,2016-02-09T22:46:10.788732,0.886523685455
+1,2016-02-09T22:46:12.329840,0.884593292039
+...
+```
+
+Replace $y-axis$ with the name of the y-axis.
+
+#### Add plain text visualization
+1. Register in catalog.
+2. Write a plain text file of any content.
+
+#### Add image visualization
+1. Register in catalog.
+2. Write a image file.
+
+Once you update the files existing in the catalog, the dashboard will soon 
+refresh to the newest version of the file.
