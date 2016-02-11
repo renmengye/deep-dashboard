@@ -46,7 +46,7 @@ chmod -R +777 results
 ```
 
 * Alternatively, you can create soft links in the Apache folder. Note to 
-Toronto users: soft links won't work in /u/username/public_html.
+Toronto users: soft links won't work in /u/$USER/public_html.
 
 * Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
 
