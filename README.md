@@ -17,9 +17,11 @@ For Ubuntu,
 sudo apt-get install apache2
 ```
 
-* Clone this repository under Apache root folder (usaully /var/www/html).
+* Clone this repository under Apache root folder (usaully /var/www/html,
+Toronto users, your Apache root is /u/$USER/public_html).
 ```shell
-cd $ROOT
+set APACHE_ROOT=/var/www/html
+cd $APACHE_ROOT
 git clone https://github.com/renmengye/visu.git visualizer
 mkdir results
 cp -R visualizer/example results
@@ -31,6 +33,20 @@ chmod -R +777 results
 Toronto users: soft links won't work in /u/username/public_html.
 
 * Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
+
+## Real-time demo
+This repository includes a demo for training a variational auto-encoder.
+To run this demo, you will need some extra dependencies:
+* [Tensorflow](https://github.com/tensorflow/tensorflow)
+* numpy
+* matplotlib
+
+Now run the demo.
+```shell
+cd demo
+python vae.py -logs $APACHE_ROOT/results
+```
+The command line will print the web address to visualize the training process.
 
 ## Couple with your training program
 
@@ -95,4 +111,5 @@ There are four arguments to initialize a new dashboard object.
     series curve.
 
 ### Backend (your program)
-Last step to hook up the dashboard is to add some lines in your training program.
+Last step to hook up the dashboard is to add some lines in your training 
+program.
