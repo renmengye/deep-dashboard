@@ -13,12 +13,12 @@ Deep dashboard currently supports displaying three types of visualizations:
 * Install [Apache 2](https://httpd.apache.org/docs/2.4/install.html)
 
 For Ubuntu,
-```
+```shell
 sudo apt-get install apache2
 ```
 
 * Clone this repository under Apache root folder (usaully /var/www/html).
-```
+```shell
 cd $ROOT
 git clone https://github.com/renmengye/visu.git visualizer
 mkdir results
@@ -65,7 +65,7 @@ To visaulize experment_id_1, you can always go to [http://localhost/visualizer?i
 
 You can customize the dashboard through modifying *index.html*.
 
-```
+```javascript
 $(function(){
     var params = getSearchParameters();
     var dashboard = new Dashboard("../results/", params.id, "#content", {
