@@ -3,10 +3,23 @@ A better visualization tool for training machine learning models.
 
 ## Introduction
 
-Deep dashboard currently supports displaying three types of visualizations:
+Tired of watching un-informative commandline console?
+Tired of the line limit of ssh screen?
+Deep dashboard helps you visualize the training process better, and provides
+with more diagnostics.
+
+It currently supports displaying three types of visualizations:
 - Time series data, in CSV format.
 - Raw plain text data
 - Image data
+
+### Benefits of Deep Dashboard
+- Completely static, so it works in any server environment (no need to open
+a new HTTP port).
+- Autorefresh, visualize training in real-time.
+- Check training process on any browser, laptop, cell phone, etc.
+- Exchange data with your program through files, so therefore support all kinds
+of machine learning libraries as backend.
 
 ## Installation
 
@@ -18,9 +31,9 @@ sudo apt-get install apache2
 ```
 
 * Clone this repository under Apache root folder
-    * It is usaully in /var/www or /var/www/html.
-    * For Toronto users, your Apache root is /u/$USER/public_html).
-    
+    * It is usaully in */var/www* or */var/www/html*.
+    * For Toronto users, your Apache root is */u/$USER/public_html*).
+
 ```shell
 set APACHE_ROOT=/var/www/html
 cd $APACHE_ROOT
@@ -48,7 +61,12 @@ Now run the demo.
 cd demo
 python vae.py -logs $APACHE_ROOT/results
 ```
-The command line will print the web address to visualize the training process.
+
+The command line will print the web address to visualize the training process
+like below:
+```
+INFO: 13:59:36 vae.py:263 Dashboard: http://localhost/visualizer?id=vae_mnist-20160211135936
+```
 
 ## Couple with your training program
 
