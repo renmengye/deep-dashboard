@@ -9,6 +9,19 @@ Array.max = function(array ) {
 var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     this.rootFolder = rootFolder;
     var place = d3.select(placeholder);
+    // Default options.
+    if (!options.xKey) {
+        options.xKey = "step";
+    }
+    if (!options.maxToDisplay) {
+        options.maxToDisplay = 10;
+    }
+    if (!options.maxLines) {
+        options.maxLines = 500;
+    }
+    if (!options.maxDatapoints) {
+        options.maxDatapoints = 500;
+    }
     if (experimentId) {
         this.addExperiment(place, experimentId);
     } else {
@@ -25,9 +38,22 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     this.allPanels = {};
     this.options = options;
     this.options.xKeyFormat = "";
+    var floatFormatter = d3.format(",.2f");
+    var timeFormatter = d3.time.format("%H:%M");
     if (options.xKey === "step") {
-      this.xKeyFormat = ",d";
+        this.options.xKeyFormat = d3.format(",d");
+    } else if (options.xKey == "time") {
+        this.options.xKeyFormat = function(d) {
+            return timeFormatter(new Date(d));
+        };
     }
+    this.options.yKeyFormat = function(d) {
+        if (d) {
+            return floatFormatter(d);
+        } else {
+            return "N/A";
+        }
+    };
 };
 
 Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
@@ -74,10 +100,10 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
 };
 
 Dashboard.prototype.getSubsampleRate = function(len) {
-    if (len < 500) {
+    if (len < this.options.maxDatapoints) {
         return 1;
     } else {
-        return Math.floor(len / 500);
+        return Math.floor(len / this.options.maxDatapoints);
     }
 }
 
@@ -95,18 +121,22 @@ Dashboard.prototype.parseData = function(csvData) {
     var displayValues = [];
     for (var ii = 0; ii < csvData.length; ++ii) {
         if (ii % subsample == 0) {
+            var xVal;
+            if (this.options.xKey == "time") {
+                xVal = Date.parse(csvData[ii][this.options.xKey]);
+                // console.log(d3.time.format("%H:%M")(xVal));
+            } else {
+                xVal = csvData[ii][this.options.xKey];
+            }
             displayValues.push({
-                "x": csvData[ii][this.options.xKey],
+                "x": xVal,
                 "y": csvData[ii][yKey]
             })
         }
     }
 
     // Assemble data.
-    var data = [{
-                values: displayValues,
-                key: yKey
-              }];
+    var data = [{values: displayValues, key: yKey}];
     return data;
 };
 
@@ -178,16 +208,11 @@ Dashboard.prototype.addChart = function(panel, timeout) {
 
             chart.xAxis
                 .axisLabel(dashboard.options.xKey)
-                .tickFormat(d3.format(dashboard.options.xKeyFormat));
+                .tickFormat(dashboard.options.xKeyFormat);
 
             chart.yAxis
                 .axisLabel("")
-                .tickFormat(function(d) {
-                  if (d == null) {
-                      return "N/A";
-                  }
-                  return d3.format(",.2f")(d);
-                });
+                .tickFormat(dashboard.options.yKeyFormat);
 
             panel.placeholder.append("div")
               .attr("id", "chart_panel_" + panel.id)
@@ -273,7 +298,8 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
             success: function(data, textStatus, request){
                 var lines = data.split("\n");
                 // Maximum 500 lines.
-                var lines = lines.slice(Math.max(0, lines.length - 500));
+                var lines = lines.slice(
+                    Math.max(0, lines.length - dashboard.options.maxLines));
                 var log = lines.join("\n")
                 d3.select("#textarea_" + panel.id)
                   .html(log)
