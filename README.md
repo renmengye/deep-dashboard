@@ -18,6 +18,7 @@ cd $ROOT
 git clone https://github.com/renmengye/visu.git visualizer
 mkdir results
 cp -R visualizer/example results
+chmod -R +777 visualizer
 chmod -R +777 results
 ```
 * Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
@@ -32,13 +33,26 @@ Here is the file structure:
 
 - */var/www/html/*
     - *visualizer*: javascripts, css, and html.
-        - *lib*: jquery, nvd3, d3.
-        - *index.html*
-        - *dashboard.js*
-        - *utils.js*
+        - *lib*
+            - jquery
+            - nvd3
+            - d3.
+        - *index.html*: Simple frontend.
+        - *dashboard.js*: Main dashboard code.
+        - *utils.js*: Utility functions.
 
     - *results*: all your experiments files
+        - *catalog* CSV file listing all the folders here.
         - *experiment_id_1*
+            - *catalog* CSV file listing all the files here.
             - *raw.log* Plain text file to display as plain text.
             - *curve.csv* CSV file to display as a time series curve.
             - *plot.png* Image file to dispay as an image.
+        - *experiment_id_2*
+            - *catalog*
+            - *raw.log*
+            - *curve.csv*
+            - *plot.png*
+
+To visaulize experment_id_1, you can always go to [http://localhost/visualizer?id=experiment_id_1](http://localhost/visualizer?id=experiment_id_1)
+

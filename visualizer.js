@@ -1,4 +1,0 @@
-function Visualizer(placeholder, logFilename) {
-
-}
-
