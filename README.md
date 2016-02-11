@@ -26,6 +26,10 @@ cp -R visualizer/example results
 chmod -R +777 visualizer
 chmod -R +777 results
 ```
+
+* Alternatively, you can create soft links in the Apache folder. Note to 
+Toronto users: soft links won't work in /u/username/public_html.
+
 * Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
 
 ## Couple with your training program
@@ -63,7 +67,8 @@ To visaulize experment_id_1, you can always go to [http://localhost/visualizer?i
 
 ### Frontend (javascript)
 
-You can customize the dashboard through modifying *index.html*.
+You can customize the dashboard through modifying *index.html*. The following
+code is currently in *index.html* to initialie the dashboard object.
 
 ```javascript
 $(function(){
@@ -76,8 +81,9 @@ $(function(){
     });
 });
 ```
+
 There are four arguments to initialize a new dashboard object.
-- "../results/" is the root folder where all the experiments are stored.
+- Root folder where all the experiments are stored.
 - Experiment ID
 - DOM selector, where to place the dashboard.
 - Extra options
@@ -89,3 +95,4 @@ There are four arguments to initialize a new dashboard object.
     series curve.
 
 ### Backend (your program)
+Last step to hook up the dashboard is to add some lines in your training program.

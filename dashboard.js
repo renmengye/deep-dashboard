@@ -105,7 +105,7 @@ Dashboard.prototype.getSubsampleRate = function(len) {
     } else {
         return Math.floor(len / this.options.maxDatapoints);
     }
-}
+};
 
 Dashboard.prototype.parseData = function(csvData) {
     // Look up the data key.
