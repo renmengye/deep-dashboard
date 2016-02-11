@@ -4,22 +4,23 @@ A better visualization tool for training machine learning models.
 ## Introduction
 
 Tired of watching un-informative commandline console?
+
 Tired of the line limit of ssh screen?
+
 Deep dashboard helps you visualize the training process better, and provides
 with more diagnostics.
 
 It currently supports displaying three types of visualizations:
-- Time series data, in CSV format.
+- Time series data, in CSV format
 - Raw plain text data
 - Image data
 
 ### Benefits of Deep Dashboard
 - Completely static, so it works in any server environment (no need to open
 a new HTTP port).
-- Autorefresh, visualize training in real-time.
-- Check training process on any browser, laptop, cell phone, etc.
-- Exchange data with your program through files, so therefore support all kinds
-of machine learning libraries as backend.
+- Visualizes training process in real-time.
+- Allows you to check model training on any browser, laptop, cell phone, etc.
+- Supports all machine learning libraries as backend.
 
 ## Installation
 
@@ -70,9 +71,10 @@ INFO: 13:59:36 vae.py:263 Dashboard: http://localhost/visualizer?id=vae_mnist-20
 
 ## Couple with your training program
 
-The dashboard interacts with your training program through static files on the
-disk, as long as you know how to write a plain text file or an image to the
-disk, you can watch your model being trained in real time.
+Now you are ready to add your own job to the dashboard! This section will 
+brief you through the architecture of dashboard, so you know what is going on
+under the hood. In short, to add your own job, you simply need to write some
+files to the right place, e.g. the training data points to a CSV file.
 
 ### File structure
 
