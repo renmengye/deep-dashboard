@@ -132,12 +132,14 @@ There are four arguments to initialize a new dashboard object.
     series curve.
 
 ### Backend (your program)
-Last step to hook up the dashboard is to modify your training program.
+
+Last step to hook up the dashboard is to modify your training program. In
+short, to add your own job, you simply need to write some files to  the right
+place, e.g. the training data points to a CSV file.
 
 #### Catalog format
 Each experiment folder contains a *catalog* file. It is in the following CSV
-format. In short, to add your own job, you simply need to write some files to 
-the right place, e.g. the training data points to a CSV file.
+format.
 
 ```csv
 filename,type,name
