@@ -230,7 +230,7 @@ if __name__ == '__main__':
         os.path.join(exp_logs_folder, 'train_logp.csv'),
         label='train logp',
         name='Train log prob',
-        buffer_size=10)
+        buffer_size=3)
     valid_logp_logger = TimeSeriesLogger(
         os.path.join(exp_logs_folder, 'valid_logp.csv'),
         label='valid logp',
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     step_time_logger = TimeSeriesLogger(
         os.path.join(exp_logs_folder, 'step_time.csv'),
         label='step time (ms)',
-        buffer_size=10)
+        buffer_size=3)
 
     # Image loggers
     w1_image_fname = os.path.join(exp_logs_folder, 'w1.png')
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     log_register(gen_image_fname, 'image', 'Generated digits')
 
     # Dashboard info
-    log.info('Dashboard: http://localhost/visualizer?id={}'.format(model_id))
+    log.info('Dashboard: http://localhost/deep-dashboard?id={}'.format(model_id))
 
     # Model options
     opt = {
