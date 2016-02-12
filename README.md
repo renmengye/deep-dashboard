@@ -38,17 +38,17 @@ sudo apt-get install apache2
 ```shell
 set APACHE_ROOT=/var/www/html
 cd $APACHE_ROOT
-git clone https://github.com/renmengye/visu.git visualizer
+git clone https://github.com/renmengye/deep-dashboard.git
 mkdir results
-cp -R visualizer/example results
-chmod -R +777 visualizer
+cp -R deep-dashboard/example results
+chmod -R +777 deep-dashboard
 chmod -R +777 results
 ```
 
 * Alternatively, you can create soft links in the Apache folder. Note to 
 Toronto users: soft links won't work in /u/$USER/public_html.
 
-* Now browse [http://localhost/visualizer?id=example](http://localhost/visualizer?id=example)
+* Now browse [http://localhost/deep-dashboard?id=example](http://localhost/deep-dashboard?id=example)
 
 ## Real-time demo
 This repository includes a demo for training a variational auto-encoder.
@@ -66,7 +66,7 @@ python vae.py -logs $APACHE_ROOT/results
 The command line will print the web address to visualize the training process
 like below:
 ```
-INFO: 13:59:36 vae.py:263 Dashboard: http://localhost/visualizer?id=vae_mnist-20160211135936
+INFO: 13:59:36 vae.py:263 Dashboard: http://localhost/deep-dashboard?id=vae_mnist-20160211135936
 ```
 
 ## Couple with your training program
@@ -78,16 +78,16 @@ under the hood.
 ### File structure
 
 - */var/www/html/*
-    - *visualizer*: javascripts, css, and html.
+    - *deep-dashboard*: javascripts, css, and html.
         - *lib*
             - jquery
             - nvd3
-            - d3.
+            - d3
         - *index.html*: Simple frontend.
         - *dashboard.js*: Main dashboard code.
         - *utils.js*: Utility functions.
 
-    - *results*: all your experiments files
+    - *results*: all your experiment files
         - *catalog*: CSV file listing all the folders here.
         - *experiment_id_1*
             - *catalog*: CSV file listing all the files here.
@@ -100,7 +100,7 @@ under the hood.
             - *curve.csv*
             - *plot.png*
 
-To visualize experiment_id_1, you can always go to [http://localhost/visualizer?id=experiment_id_1](http://localhost/visualizer?id=experiment_id_1)
+To visualize experiment_id_1, you can always go to [http://localhost/deep-dashboard?id=experiment_id_1](http://localhost/deep-dashboard?id=experiment_id_1)
 
 ### Frontend (javascript)
 
