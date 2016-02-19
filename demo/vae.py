@@ -71,7 +71,7 @@ class TimeSeriesLogger():
 
     def add(self, step, value):
         """Add an entry."""
-        t = datetime.datetime.now()
+        t = datetime.datetime.utcnow()
         self.buffer.append('{:d},{},{}\n'.format(
             step, t.isoformat(), value))
         if len(self.buffer) >= self.buffer_size:

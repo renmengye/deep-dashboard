@@ -54,6 +54,11 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             return "N/A";
         }
     };
+
+    // Set event listener.
+    this.active = true;
+    window.addEventListener("focus", this.onfocus, false);
+    window.addEventListener("blur", this.onblur, false);
 };
 
 Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
@@ -149,15 +154,16 @@ Dashboard.prototype.updateChart = function(panel) {
         var data = dashboard.parseData(csvData);
         var xValues = data[0].values.map(function(item) {return item.x});
         var yValues = data[0].values.map(function(item) {return item.y});
-        chart
-          .xDomain([Array.min(xValues), Array.max(xValues)])
-          .yDomain([Array.min(yValues), Array.max(yValues)]);
-        d3.select("#svg_" + panel.id)
-            .datum(data);
+        chart.xDomain([Array.min(xValues), Array.max(xValues)])
+             .yDomain([Array.min(yValues), Array.max(yValues)]);
+        d3.select("#svg_" + panel.id).datum(data);
+        chart.xAxis.axisLabel(dashboard.options.xKey)
+                   .tickFormat(dashboard.options.xKeyFormat);
         chart.update();
         dashboard.updateLastModified(panel, false);
     });
-    setTimeout(function() {dashboard.updateChart(panel)}, this.options.timeout);
+    setTimeout(dashboard.schedule(function() {dashboard.updateChart(panel)}), 
+               this.options.timeout);
 };
 
 Dashboard.prototype.updateLastModified = function(panel, add) {
@@ -246,7 +252,7 @@ Dashboard.prototype.addImage = function(panel) {
         var img = d3.select("#" + "img_" + panel.id)[0][0];
         img.src = panel.filename + "?ts=" + date.getTime();
         dashboard.updateLastModified(panel, false);
-        setTimeout(update, dashboard.options.timeout);
+        setTimeout(dashboard.schedule(update), dashboard.options.timeout);
     };
     update();
 };
@@ -280,13 +286,26 @@ Dashboard.prototype.addPanel = function(placeholder, filename, name) {
 Dashboard.prototype.addPlainLog = function(panel, timeout) {
     var dashboard = this;
     panel.placeholder.append("textarea")
-                    .attr("class", "raw_log")
-                    .attr("cols", "80")
-                    .attr("rows", "30")
-                    .attr("id", "textarea_" + panel.id)
-                    .call(function() {
-                        dashboard.updateLastModified(panel, true);
-                    });
+                     .attr("class", "raw_log")
+                     .attr("cols", "94")
+                     .attr("rows", "30")
+                     .attr("id", "textarea_" + panel.id)
+                     .call(function() {
+                         dashboard.updateLastModified(panel, true);
+                     });
+
+    panel.placeholder.append("div")
+                     .attr("id", "check_div_" + panel.id)
+                     .attr("class", "raw_log")
+                     .call(function() {
+                        var div = d3.select("#check_div_" + panel.id);
+                        div.append("input")
+                           .attr("type", "checkbox")
+                           .attr("id", "check_" + panel.id)
+                           .attr("checked", true);
+                        div.append("label")
+                           .text("Auto-scroll to bottom");
+                     });
 
     var update = function() {
         $.ajax({
@@ -307,13 +326,37 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
                     dashboard.updateLastModified(panel, false);
                   });
 
-                var textarea = document.getElementById("textarea_" + panel.id);
-                textarea.scrollTop = textarea.scrollHeight;
+
+                // Scroll to bottom.
+                if (document.getElementById("check_" + panel.id).checked) {
+                    var textarea = document.getElementById(
+                        "textarea_" + panel.id);
+                    textarea.scrollTop = textarea.scrollHeight;
+                }
 
             },
             error: function(e) {throw e;}
         });
-        setTimeout(update, dashboard.options.timeout);
+        setTimeout(dashboard.schedule(update), dashboard.options.timeout);
     };
     update();
+};
+
+Dashboard.prototype.onfocus = function() {
+    console.log("onfocus");
+    this.active = true;
+};
+
+Dashboard.prototype.onblur = function() {
+    console.log("onblur");
+    this.active = false;
+};
+
+Dashboard.prototype.schedule = function(callback) {
+    var dashboard = this;
+    return function() {
+        if (dashboard.active) {
+            callback();
+        }
+    };
 };
