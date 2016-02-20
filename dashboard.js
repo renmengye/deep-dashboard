@@ -102,11 +102,7 @@ Dashboard.prototype.getXKeyFormat = function(xKey) {
 Dashboard.prototype.getYKeyFormat = function(yKey) {
     var floatFormatter = d3.format(",.2f");
     return function(d) {
-        if (d) {
-            return floatFormatter(d);
-        } else {
-            return "N/A";
-        }
+        return floatFormatter(d);
     };
 };
 
