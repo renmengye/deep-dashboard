@@ -1,13 +1,16 @@
 text {
     font: 12px sans-serif;
 }
+
 h1 {
     font: 20px sans-serif;
     font-weight: 700;
 }
+
 svg {
     display: block;
 }
+
 html, body {
     margin: 0px;
     padding: 0px;
@@ -15,9 +18,11 @@ html, body {
     width: 100%;
     font: 12px sans-serif;
 }
+
 .dashed {
     stroke-dasharray: 5,5;
 }
+
 .panel {
     width: 100%;
     margin: 10px 0 50px 0;
@@ -46,4 +51,14 @@ html, body {
 #content {
     width: 800px;
     margin: auto;
+}
+
+#settings {
+    margin-bottom: 20px;
+}
+
+.title {
+    font: 25px sans-serif;
+    font-weight: 700;
+    margin: 20px 0px 20px 0px;
 }

@@ -8,6 +8,7 @@ Array.max = function(array ) {
 
 var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     this.rootFolder = rootFolder;
+    var dashboard = this;
     var place = d3.select(placeholder);
     // Default options.
     if (!options.xKey) {
@@ -22,6 +23,44 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     if (!options.maxDatapoints) {
         options.maxDatapoints = 500;
     }
+
+    // Add title.
+    place.append("div")
+         .attr("class", "title")
+         .text("Deep Dashboard");
+
+    // Add settings panel.
+    place.append("div")
+         .attr("id", "settings")
+         .call(function() {
+            d3.select("#settings")
+              .append("h1")
+              .text("Settings");
+            d3.select("#settings")
+              .append("div")
+              .text("Display on x-axis: ")
+              .append("select")
+              .attr("id", "select_xaxis")
+              .call(function() {
+                var opt = {}
+                opt.step = d3.select("#select_xaxis")
+                .append("option")
+                .attr("value", "step")
+                .text("step");
+                opt.abs_time = d3.select("#select_xaxis")
+                .append("option")
+                .attr("value", "abs_time")
+                .text("absolute time");
+                opt.rel_time = d3.select("#select_xaxis")
+                .append("option")
+                .attr("value", "rel_time")
+                .text("relative time");
+                opt[options.xKey].attr("selected", true);
+                document.getElementById("select_xaxis")
+                        .onchange = dashboard.refreshChart.bind(dashboard);
+            });
+         });
+
     if (experimentId) {
         this.addExperiment(place, experimentId);
     } else {
@@ -37,29 +76,47 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
 
     this.allPanels = {};
     this.options = options;
-    this.options.xKeyFormat = "";
+
+    // Set event listener.
+    this.active = true;
+    window.addEventListener("focus", function() {
+        dashboard.active = true;
+    }, false);
+    window.addEventListener("blur", function() {
+        dashboard.active = false;
+    }, false);
+};
+
+Dashboard.prototype.getXKeyFormat = function(xKey) {
     var floatFormatter = d3.format(",.2f");
-    var timeFormatter = d3.time.format("%H:%M");
-    if (options.xKey === "step") {
-        this.options.xKeyFormat = d3.format(",d");
-    } else if (options.xKey == "time") {
-        this.options.xKeyFormat = function(d) {
+    var timeFormatter = d3.time.format("%H:%M:%S");
+    if (this.options.xKey === "step") {
+        return d3.format(",d");
+    } else if (this.options.xKey === "abs_time" || this.options.xKey === "rel_time") {
+        return function(d) {
             return timeFormatter(new Date(d));
         };
     }
-    this.options.yKeyFormat = function(d) {
+};
+
+Dashboard.prototype.getYKeyFormat = function(yKey) {
+    var floatFormatter = d3.format(",.2f");
+    return function(d) {
         if (d) {
             return floatFormatter(d);
         } else {
             return "N/A";
         }
     };
-
-    // Set event listener.
-    this.active = true;
-    window.addEventListener("focus", this.onfocus, false);
-    window.addEventListener("blur", this.onblur, false);
 };
+
+Dashboard.prototype.getXAxis = function(xKey) {
+    if (xKey === "step") {
+        return "step";
+    } else if (xKey === "abs_time" || xKey === "rel_time") { 
+        return "time";
+    }
+}
 
 Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
     var experimentFolder = this.rootFolder + experimentId + "/";
@@ -68,7 +125,7 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
         if (error) {
             d3.select("#content")
                 .append("h1")
-                .html(experimentId + " Not Found");
+                .html("Experiment " + experimentId + " Not Found");
             throw error;
         }
 
@@ -80,7 +137,7 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
           .attr("id", divId)
           .attr("class", "experiment")
           .append("h1")
-          .html(experimentId + 
+          .html("Experiment " + experimentId + 
             " <a href='?id=" + 
             experimentId + "'> &gt;&gt;</a>");
 
@@ -89,6 +146,8 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
             var name = csvData[ii].name;
             var place = d3.select("#" + divId);
             var panel = dashboard.addPanel(place, fname, name);
+            panel.type = csvData[ii].type;
+
             if (!csvData[ii].type) {
                 csvData[ii].type = "csv";
             }
@@ -124,19 +183,22 @@ Dashboard.prototype.parseData = function(csvData) {
 
     var subsample = this.getSubsampleRate(csvData.length);
     var displayValues = [];
+    var offset = (new Date().getTimezoneOffset()) * 60000;
+    var time_start = Date.parse(csvData[0].time);
     for (var ii = 0; ii < csvData.length; ++ii) {
         if (ii % subsample == 0) {
             var xVal;
-            if (this.options.xKey == "time") {
-                xVal = Date.parse(csvData[ii][this.options.xKey]);
-                // console.log(d3.time.format("%H:%M")(xVal));
+            if (this.options.xKey === "abs_time") {
+                xVal = Date.parse(csvData[ii].time);
+            } else if (this.options.xKey === "rel_time") {
+                xVal = Date.parse(csvData[ii].time) - time_start + offset;
             } else {
                 xVal = csvData[ii][this.options.xKey];
             }
             displayValues.push({
                 "x": xVal,
                 "y": csvData[ii][yKey]
-            })
+            });
         }
     }
 
@@ -157,13 +219,23 @@ Dashboard.prototype.updateChart = function(panel) {
         chart.xDomain([Array.min(xValues), Array.max(xValues)])
              .yDomain([Array.min(yValues), Array.max(yValues)]);
         d3.select("#svg_" + panel.id).datum(data);
-        chart.xAxis.axisLabel(dashboard.options.xKey)
-                   .tickFormat(dashboard.options.xKeyFormat);
+        chart.xAxis.axisLabel(dashboard.getXAxis(dashboard.options.xKey))
+                   .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
         chart.update();
         dashboard.updateLastModified(panel, false);
     });
     setTimeout(dashboard.schedule(function() {dashboard.updateChart(panel)}), 
                this.options.timeout);
+};
+
+Dashboard.prototype.refreshChart = function() {
+    this.options.xKey = $( "#select_xaxis" ).val();
+    for (var panelId in this.allPanels) {
+        var panel = this.allPanels[panelId];
+        if (panel.type === "csv") {
+            this.updateChart(panel);
+        }
+    }
 };
 
 Dashboard.prototype.updateLastModified = function(panel, add) {
@@ -213,12 +285,12 @@ Dashboard.prototype.addChart = function(panel, timeout) {
                         .yDomain([Array.min(yValues), Array.max(yValues)]);
 
             chart.xAxis
-                .axisLabel(dashboard.options.xKey)
-                .tickFormat(dashboard.options.xKeyFormat);
+                .axisLabel(dashboard.getXAxis(dashboard.options.xKey))
+                .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
 
             chart.yAxis
                 .axisLabel("")
-                .tickFormat(dashboard.options.yKeyFormat);
+                .tickFormat(dashboard.getYKeyFormat(dashboard.options.yKey));
 
             panel.placeholder.append("div")
               .attr("id", "chart_panel_" + panel.id)
@@ -340,16 +412,6 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
         setTimeout(dashboard.schedule(update), dashboard.options.timeout);
     };
     update();
-};
-
-Dashboard.prototype.onfocus = function() {
-    console.log("onfocus");
-    this.active = true;
-};
-
-Dashboard.prototype.onblur = function() {
-    console.log("onblur");
-    this.active = false;
 };
 
 Dashboard.prototype.schedule = function(callback) {
