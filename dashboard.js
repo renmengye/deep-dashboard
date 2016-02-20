@@ -356,7 +356,7 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
     panel.placeholder.append("textarea")
                      .attr("class", "raw_log")
                      .attr("cols", "94")
-                     .attr("rows", "30")
+                     .attr("rows", "20")
                      .attr("id", "textarea_" + panel.id)
                      .call(function() {
                          dashboard.updateLastModified(panel, true);
