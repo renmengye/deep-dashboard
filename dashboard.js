@@ -100,7 +100,7 @@ Dashboard.prototype.getXKeyFormat = function(xKey) {
 };
 
 Dashboard.prototype.getYKeyFormat = function(yKey) {
-    var floatFormatter = d3.format(",.2f");
+    var floatFormatter = d3.format(",.4f");
     return function(d) {
         return floatFormatter(d);
     };
