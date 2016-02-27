@@ -169,11 +169,15 @@ Dashboard.prototype.getSubsampleRate = function(len) {
 
 Dashboard.prototype.parseData = function(csvData) {
     // Look up the data key.
-    var yKey = "";
+    var yKeys = {};
+    var data = [];
+    var col = 0;
+    var colors = ["#2980b9", "#16a085", "#c0392b", "#8e44ad", "#d35400", "#2c3e50"];
     for (var key in csvData[0]) {
         if (key !== "step" && key !== "time") {
-          yKey = key;
-          break;
+            yKeys[key] = col;
+            data.push({values: [], key: key, color: colors[col % colors.length]});
+            col++;
         }
     }
 
@@ -191,16 +195,36 @@ Dashboard.prototype.parseData = function(csvData) {
             } else {
                 xVal = csvData[ii][this.options.xKey];
             }
-            displayValues.push({
-                "x": xVal,
-                "y": csvData[ii][yKey]
-            });
+            for (var yKey in yKeys) {
+                if (csvData[ii][yKey] !== "") {
+                    var col = yKeys[yKey];
+                    data[col].values.push({"x": xVal, "y": csvData[ii][yKey]});
+                }
+            }
         }
     }
 
-    // Assemble data.
-    var data = [{values: displayValues, key: yKey}];
     return data;
+};
+
+Dashboard.prototype.getXYLimit = function(data) {
+    var minX, maxX, minY, maxY;
+    for (var ii = 0; ii < data.length; ++ii) {
+        var xValues = data[0].values.map(function(item) {return item.x});
+        var yValues = data[0].values.map(function(item) {return item.y});
+        if (ii == 0){
+            minX = Array.min(xValues);
+            maxX = Array.max(xValues);
+            minY = Array.min(yValues);
+            maxY = Array.max(yValues);
+        } else {
+            minX = Math.min(minX, Array.min(xValues));
+            maxX = Math.max(maxX, Array.max(xValues));
+            minY = Math.min(minY, Array.min(yValues));
+            maxY = Math.max(maxY, Array.max(yValues));
+        }
+    }
+    return [minX, maxX, minY, maxY];
 };
 
 Dashboard.prototype.updateChart = function(panel) {
@@ -210,10 +234,8 @@ Dashboard.prototype.updateChart = function(panel) {
     d3.csv(panel.filename, function(error, csvData) {
         if (error) throw error;
         var data = dashboard.parseData(csvData);
-        var xValues = data[0].values.map(function(item) {return item.x});
-        var yValues = data[0].values.map(function(item) {return item.y});
-        chart.xDomain([Array.min(xValues), Array.max(xValues)])
-             .yDomain([Array.min(yValues), Array.max(yValues)]);
+        var limits = dashboard.getXYLimit(data);
+        chart.xDomain([limits[0], limits[1]]).yDomain([limits[2], limits[3]]);
         d3.select("#svg_" + panel.id).datum(data);
         chart.xAxis.axisLabel(dashboard.getXAxis(dashboard.options.xKey))
                    .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
@@ -266,10 +288,8 @@ Dashboard.prototype.addChart = function(panel, timeout) {
         d3.csv(panel.filename, function(error, csvData) {
             if (error) throw error;
             var data = dashboard.parseData(csvData);
-
-            // Extract y value range.
-            var xValues = data[0].values.map(function(item) {return item.x});
-            var yValues = data[0].values.map(function(item) {return item.y});
+            console.log(data);
+            var limits = dashboard.getXYLimit(data);
 
             // Initialize chart.
             var chart = nv.models.lineChart()
@@ -277,8 +297,8 @@ Dashboard.prototype.addChart = function(panel, timeout) {
                           transitionDuration: 300,
                           useInteractiveGuideline: true
                         })
-                        .xDomain([Array.min(xValues), Array.max(xValues)])
-                        .yDomain([Array.min(yValues), Array.max(yValues)]);
+                        .xDomain([limits[0], limits[1]])
+                        .yDomain([limits[2], limits[3]]);
 
             chart.xAxis
                 .axisLabel(dashboard.getXAxis(dashboard.options.xKey))
