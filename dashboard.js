@@ -185,22 +185,27 @@ Dashboard.prototype.parseData = function(csvData) {
     var displayValues = [];
     var offset = (new Date().getTimezoneOffset()) * 60000;
     var time_start = Date.parse(csvData[0].time);
+    var count = {};
+    for (var yKey in yKeys) {
+        count[yKey] = 0;
+    }
     for (var ii = 0; ii < csvData.length; ++ii) {
-        if (ii % subsample == 0) {
-            var xVal;
-            if (this.options.xKey === "abs_time") {
-                xVal = Date.parse(csvData[ii].time);
-            } else if (this.options.xKey === "rel_time") {
-                xVal = Date.parse(csvData[ii].time) - time_start + offset;
-            } else {
-                xVal = csvData[ii][this.options.xKey];
-            }
-            for (var yKey in yKeys) {
+        var xVal;
+        if (this.options.xKey === "abs_time") {
+            xVal = Date.parse(csvData[ii].time);
+        } else if (this.options.xKey === "rel_time") {
+            xVal = Date.parse(csvData[ii].time) - time_start + offset;
+        } else {
+            xVal = csvData[ii][this.options.xKey];
+        }
+        for (var yKey in yKeys) {
+            if (count[yKey] % subsample == 0) {
                 if (csvData[ii][yKey] !== "") {
                     var col = yKeys[yKey];
                     data[col].values.push({"x": xVal, "y": csvData[ii][yKey]});
                 }
             }
+            count[yKey]++;
         }
     }
 
