@@ -210,8 +210,8 @@ Dashboard.prototype.parseData = function(csvData) {
 Dashboard.prototype.getXYLimit = function(data) {
     var minX, maxX, minY, maxY;
     for (var ii = 0; ii < data.length; ++ii) {
-        var xValues = data[0].values.map(function(item) {return item.x});
-        var yValues = data[0].values.map(function(item) {return item.y});
+        var xValues = data[ii].values.map(function(item) {return item.x});
+        var yValues = data[ii].values.map(function(item) {return item.y});
         if (ii == 0){
             minX = Array.min(xValues);
             maxX = Array.max(xValues);
