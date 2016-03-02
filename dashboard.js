@@ -79,7 +79,7 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
 
     // Set event listener.
     this.active = true;
-    window.addEventListener("focus", function() {
+    window.addEventListener("mousemove", function() {
         dashboard.active = true;
     }, false);
     window.addEventListener("blur", function() {
