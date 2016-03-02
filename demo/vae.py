@@ -49,33 +49,42 @@ def log_register(filename, typ, name):
 class TimeSeriesLogger():
     """Log time series data to CSV file."""
 
-    def __init__(self, filename, label, name=None, buffer_size=100):
+    def __init__(self, filename, labels, name=None, buffer_size=100):
         """
         Args:
-            filename: string, log filename.
-            label: string, y-axis label.
-            name: stirng, name of the plot.
-            buffer_size: string, buffer size before writing to disk.
+            label: list of string
+            name: string
         """
         self.filename = filename
         self.written_catalog = False
+        if type(labels) != list:
+            labels = [labels]
         if name is None:
-            self.name = label
+            self.name = labels[0]
         else:
             self.name = name
-        self.label = label
+        self.labels = labels
         self.buffer = []
-        self.buffer.append('step,time,{}\n'.format(self.label))
+        self.buffer.append('step,time,{}\n'.format(','.join(self.labels)))
         self.buffer_size = buffer_size
-        log.info('Time series data "{}" log to "{}"'.format(label, filename))
+        log.info('Time series data "{}" log to "{}"'.format(labels, filename))
+        pass
 
-    def add(self, step, value):
-        """Add an entry."""
+    def add(self, step, values):
+        """Add an entry.
+
+        Args:
+            step: int
+            value: list of numbers
+        """
         t = datetime.datetime.utcnow()
+        if type(values) != list:
+            values = [values]
         self.buffer.append('{:d},{},{}\n'.format(
-            step, t.isoformat(), value))
+            step, t.isoformat(), ','.join([str(v) for v in values])))
         if len(self.buffer) >= self.buffer_size:
             self.flush()
+        pass
 
     def flush(self):
         """Write the buffer to file."""
@@ -91,10 +100,12 @@ class TimeSeriesLogger():
         with open(self.filename, mode) as f:
             f.write(''.join(self.buffer))
         self.buffer = []
+        pass
 
     def close(self):
         """Flush the rest."""
         self.flush()
+        pass
 
 
 def weight_variable(shape, wd=None, name=None):
@@ -218,43 +229,33 @@ if __name__ == '__main__':
 
     # Log folder
     logs_folder = args.logs
-    exp_logs_folder = os.path.join(logs_folder, model_id)
+    logs_folder = os.path.join(logs_folder, model_id)
 
     # Plain text logger
-    log = logger.get(os.path.join(exp_logs_folder, 'raw'))
+    log = logger.get(os.path.join(logs_folder, 'raw'))
     log.log_args()
     log_register(log.filename, 'plain', 'Raw logs')
 
     # Create time series loggers
-    train_logp_logger = TimeSeriesLogger(
-        os.path.join(exp_logs_folder, 'train_logp.csv'),
-        label='train logp',
-        name='Train log prob',
-        buffer_size=3)
-    valid_logp_logger = TimeSeriesLogger(
-        os.path.join(exp_logs_folder, 'valid_logp.csv'),
-        label='valid logp',
-        name='Validation log prob',
+    logp_logger = TimeSeriesLogger(
+        os.path.join(logs_folder, 'logp.csv'),
+        labels=['train', 'valid'],
+        name='Log prob lowerbound',
         buffer_size=1)
-    henc_sparsity_logger = TimeSeriesLogger(
-        os.path.join(exp_logs_folder, 'henc_sparsity.csv'),
-        label='henc sparsity',
-        name='Encoder hidden activation sparsity',
-        buffer_size=1)
-    hdec_sparsity_logger = TimeSeriesLogger(
-        os.path.join(exp_logs_folder, 'hdec_sparsity.csv'),
-        label='hdec sparsity',
-        name='Decoder hidden activation sparsity',
+    sparsity_logger = TimeSeriesLogger(
+        os.path.join(logs_folder, 'sparsity.csv'),
+        labels=['encoder', 'decoder'],
+        name='Hidden layer sparsity',
         buffer_size=1)
     step_time_logger = TimeSeriesLogger(
-        os.path.join(exp_logs_folder, 'step_time.csv'),
-        label='step time (ms)',
+        os.path.join(logs_folder, 'step_time.csv'),
+        labels='step time (ms)',
         buffer_size=3)
 
     # Image loggers
-    w1_image_fname = os.path.join(exp_logs_folder, 'w1.png')
-    decoder_image_fname = os.path.join(exp_logs_folder, 'decoder.png')
-    gen_image_fname = os.path.join(exp_logs_folder, 'gen.png')
+    w1_image_fname = os.path.join(logs_folder, 'w1.png')
+    decoder_image_fname = os.path.join(logs_folder, 'decoder.png')
+    gen_image_fname = os.path.join(logs_folder, 'gen.png')
     log_register(w1_image_fname, 'image', 'W1 visualization')
     log_register(decoder_image_fname, 'image', 'Decoder reconstruction')
     log_register(gen_image_fname, 'image', 'Generated digits')
@@ -328,9 +329,8 @@ if __name__ == '__main__':
         plot_digits(w1_image_fname, w1, 3, 10)
         plot_digits(decoder_image_fname, x_comb, 3, 10)
         plot_digits(gen_image_fname, x_, 3, 10)
-        valid_logp_logger.add(step, valid_log_px_lb)
-        henc_sparsity_logger.add(step, henc_sparsity)
-        hdec_sparsity_logger.add(step, hdec_sparsity)
+        logp_logger.add(step, ['', valid_log_px_lb])
+        sparsity_logger.add(step, [henc_sparsity, hdec_sparsity])
 
         # Train
         for ii in xrange(500):
@@ -347,15 +347,13 @@ if __name__ == '__main__':
                 step_time = (time.time() - st) * 1000
                 log.info('{:d} logp {:.4f} t {:.2f}ms'.format(
                     step, log_px_lb, step_time))
-                train_logp_logger.add(step, log_px_lb)
+                logp_logger.add(step, [log_px_lb, ''])
                 step_time_logger.add(step, step_time)
 
             step += 1
 
     # Clean up
-    train_logp_logger.close()
-    valid_logp_logger.close()
-    henc_sparsity_logger.close()
-    hdec_sparsity_logger.close()
+    logp_logger.close()
+    sparsity_logger.close()
     step_time_logger.close()
     sess.close()
