@@ -247,8 +247,6 @@ Dashboard.prototype.updateChart = function(panel) {
         chart.update();
         dashboard.updateLastModified(panel, false);
     });
-    setTimeout(dashboard.schedule(function() {dashboard.updateChart(panel)}), 
-               this.options.timeout);
 };
 
 Dashboard.prototype.refreshChart = function() {
@@ -325,6 +323,9 @@ Dashboard.prototype.addChart = function(panel, timeout) {
               });
             panel.chart = chart;
             dashboard.updateChart(panel);
+            setInterval(dashboard.schedule(
+                    function() {dashboard.updateChart(panel)}), 
+                dashboard.options.timeout);
         });
     });
 };
@@ -345,9 +346,9 @@ Dashboard.prototype.addImage = function(panel) {
         var img = d3.select("#" + "img_" + panel.id)[0][0];
         img.src = panel.filename + "?ts=" + date.getTime();
         dashboard.updateLastModified(panel, false);
-        setTimeout(dashboard.schedule(update), dashboard.options.timeout);
     };
     update();
+    setInterval(dashboard.schedule(update), dashboard.options.timeout);
 };
 
 Dashboard.prototype.getPanelId = function(filename) {
@@ -430,9 +431,9 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
             },
             error: function(e) {throw e;}
         });
-        setTimeout(dashboard.schedule(update), dashboard.options.timeout);
     };
     update();
+    setInterval(dashboard.schedule(update), dashboard.options.timeout);
 };
 
 Dashboard.prototype.schedule = function(callback) {
