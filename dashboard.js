@@ -193,7 +193,9 @@ Dashboard.prototype.parseData = function(csvData) {
     var yKeys = {};
     var data = [];
     var col = 0;
-    var colors = ["#2980b9", "#16a085", "#c0392b", "#8e44ad", "#d35400", "#2c3e50"];
+    var colors = ["#2980b9", "#16a085", "#c0392b", "#8e44ad", "#d35400", 
+    "#2c3e50", "#3d315b", "#708b75", "#011627", "#9bc53d", "#5bc0eb", "#fde74c",
+    "#e55934", "#da7921"];
     for (var key in csvData[0]) {
         if (key !== "step" && key !== "time") {
             yKeys[key] = col;
