@@ -23,6 +23,9 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     if (!options.maxDatapoints) {
         options.maxDatapoints = 500;
     }
+    if (!options.autoRefresh) {
+        options.autoRefresh = false;
+    }
 
     // Add title.
     place.append("div")
@@ -36,6 +39,19 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             d3.select("#settings")
               .append("h1")
               .text("Settings");
+            d3.select("#settings")
+              .append("div")
+              .text("Auto-refresh: ")
+              .append("input")
+              .attr("type", "checkbox")
+              .attr("id", "check_auto_refresh")
+              .call(function() {
+                document.getElementById("check_auto_refresh")
+                        .onchange = dashboard.autoRefresh.bind(dashboard);
+
+                document.getElementById("check_auto_refresh")
+                        .checked = options.autoRefresh;
+              });
             d3.select("#settings")
               .append("div")
               .text("Display on x-axis: ")
@@ -86,6 +102,11 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
         dashboard.active = false;
     }, false);
 };
+
+Dashboard.prototype.autoRefresh = function() {
+    this.options.autoRefresh = 
+        document.getElementById("check_auto_refresh").checked;
+}
 
 Dashboard.prototype.getXKeyFormat = function(xKey) {
     var floatFormatter = d3.format(",.2f");
@@ -291,7 +312,6 @@ Dashboard.prototype.addChart = function(panel, timeout) {
         d3.csv(panel.filename, function(error, csvData) {
             if (error) throw error;
             var data = dashboard.parseData(csvData);
-            console.log(data);
             var limits = dashboard.getXYLimit(data);
 
             // Initialize chart.
@@ -439,7 +459,7 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
 Dashboard.prototype.schedule = function(callback) {
     var dashboard = this;
     return function() {
-        if (dashboard.active) {
+        if (dashboard.active && dashboard.options.autoRefresh) {
             callback();
         }
     };
