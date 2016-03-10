@@ -156,27 +156,46 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
           .append("h1")
           .html("Experiment " + experimentId + 
             " <a href='?id=" + 
-            experimentId + "'> &gt;&gt;</a>");
+            experimentId + "'> &gt;&gt;</a>")
+          .call(function(){
+            d3.select("#" + divId)
+              .append("div")
+              .attr("id", "menu_" + experimentId)
+              .append("h2")
+              .text("Navigation").call(function() {
+                for (var ii = 0; ii < csvData.length; ++ii) {
+                    var fname = experimentFolder + csvData[ii].filename;
+                    var name = csvData[ii].name;
+                    d3.select("#menu_" + experimentId)
+                        .append("span")
+                        .html("<h3><a href=#panel_" + 
+                            dashboard.getPanelId(fname) + ">" + 
+                            name + "</a></h3>");
+                }
+              });
+              for (var ii = 0; ii < csvData.length; ++ii) {
+                var fname = experimentFolder + csvData[ii].filename;
+                var name = csvData[ii].name;
+                var place = d3.select("#" + divId);
+                var panel = dashboard.addPanel(place, fname, name);
+                panel.type = csvData[ii].type;
 
-        for (var ii = 0; ii < csvData.length; ++ii) {
-            var fname = experimentFolder + csvData[ii].filename;
-            var name = csvData[ii].name;
-            var place = d3.select("#" + divId);
-            var panel = dashboard.addPanel(place, fname, name);
-            panel.type = csvData[ii].type;
 
-            if (!csvData[ii].type) {
-                csvData[ii].type = "csv";
-            }
-            if (csvData[ii].type === "csv") {
-                dashboard.addChart(panel);
-            }
-            else if (csvData[ii].type === "plain") {
-                dashboard.addPlainLog(panel);
-            } else if (csvData[ii].type == "image") {
-                dashboard.addImage(panel, dashboard.options.timeout);
-            }
-        }
+                if (!csvData[ii].type) {
+                    csvData[ii].type = "csv";
+                }
+                if (csvData[ii].type === "csv") {
+                    dashboard.addChart(panel);
+                }
+                else if (csvData[ii].type === "plain") {
+                    dashboard.addPlainLog(panel);
+                } else if (csvData[ii].type == "image") {
+                    dashboard.addImage(panel, dashboard.options.timeout);
+                }
+              }
+          });
+
+
     });
 };
 
@@ -391,7 +410,7 @@ Dashboard.prototype.addPanel = function(placeholder, filename, name) {
             .attr("id", "panel_" + panel.id)
             .attr("class", "panel");
     panelplace = d3.select("#panel_" + panel.id);
-    panelplace.append("h2").html(name);
+    panelplace.append("h2").html(name + "   <a href=#settings>^</a>");
     panel.placeholder = panelplace;
     this.allPanels[panel.id] = panel;
 
