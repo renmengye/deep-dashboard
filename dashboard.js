@@ -88,14 +88,14 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
          });
 
     if (experimentId) {
-        this.addExperiment(place, experimentId);
+        this.addExperiment(place, experimentId, false);
     } else {
         d3.csv(this.rootFolder + "catalog", function(error, csvData) {
             if (error) throw error;
             // TODO: sort by last modified date.
             for (var ii = 0; 
                 ii < Math.min(csvData.length, options.maxToDisplay); ++ii) {
-                dashboard.addExperiment(place, csvData[ii].id);
+                dashboard.addExperiment(place, csvData[ii].id, true);
             }
         });
     }
@@ -145,7 +145,7 @@ Dashboard.prototype.getXAxis = function(xKey) {
     }
 }
 
-Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
+Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnly) {
     var experimentFolder = this.rootFolder + experimentId + "/";
     var dashboard = this;
     d3.csv(experimentFolder + "catalog", function(error, csvData) {
@@ -168,42 +168,44 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId) {
             " <a href='?id=" + 
             experimentId + "'> &gt;&gt;</a>")
           .call(function(){
-            d3.select("#" + divId)
-              .append("div")
-              .attr("id", "menu_" + experimentId)
-              .append("h2")
-              .text("Navigation").call(function() {
-                for (var ii = 0; ii < csvData.length; ++ii) {
+                if (!titleOnly) {
+                d3.select("#" + divId)
+                  .append("div")
+                  .attr("id", "menu_" + experimentId)
+                  .append("h2")
+                  .text("Navigation").call(function() {
+                    for (var ii = 0; ii < csvData.length; ++ii) {
+                        var fname = experimentFolder + csvData[ii].filename;
+                        var name = csvData[ii].name;
+                        d3.select("#menu_" + experimentId)
+                            .append("span")
+                            .html("<h3><a href=#panel_" + 
+                                dashboard.getPanelId(fname) + ">" + 
+                                name + "</a></h3>");
+                    }
+                  });
+                  for (var ii = 0; ii < csvData.length; ++ii) {
                     var fname = experimentFolder + csvData[ii].filename;
                     var name = csvData[ii].name;
-                    d3.select("#menu_" + experimentId)
-                        .append("span")
-                        .html("<h3><a href=#panel_" + 
-                            dashboard.getPanelId(fname) + ">" + 
-                            name + "</a></h3>");
-                }
-              });
-              for (var ii = 0; ii < csvData.length; ++ii) {
-                var fname = experimentFolder + csvData[ii].filename;
-                var name = csvData[ii].name;
-                var place = d3.select("#" + divId);
-                var panel = dashboard.addPanel(place, fname, name);
-                panel.type = csvData[ii].type;
+                    var place = d3.select("#" + divId);
+                    var panel = dashboard.addPanel(place, fname, name);
+                    panel.type = csvData[ii].type;
 
 
-                if (!csvData[ii].type) {
-                    csvData[ii].type = "csv";
-                }
-                if (csvData[ii].type === "csv") {
-                    dashboard.addChart(panel);
-                }
-                else if (csvData[ii].type === "plain") {
-                    dashboard.addPlainLog(panel);
-                } else if (csvData[ii].type == "image") {
-                    dashboard.addImage(panel, dashboard.options.timeout);
-                }
+                    if (!csvData[ii].type) {
+                        csvData[ii].type = "csv";
+                    }
+                    if (csvData[ii].type === "csv") {
+                        dashboard.addChart(panel);
+                    }
+                    else if (csvData[ii].type === "plain") {
+                        dashboard.addPlainLog(panel);
+                    } else if (csvData[ii].type == "image") {
+                        dashboard.addImage(panel, dashboard.options.timeout);
+                    }
+                  }
               }
-          });
+            });
 
 
     });
