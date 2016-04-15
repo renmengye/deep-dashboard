@@ -6,6 +6,16 @@ Array.max = function(array ) {
   return Math.max.apply(Math, array);
 };
 
+Date.prototype.stdTimezoneOffset = function() {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
+
+Date.prototype.dst = function() {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+}
+
 var Dashboard = function(rootFolder, experimentId, placeholder, options) {
     this.rootFolder = rootFolder;
     var dashboard = this;
@@ -225,7 +235,11 @@ Dashboard.prototype.parseData = function(csvData) {
 
     var subsample = this.getSubsampleRate(csvData.length);
     var displayValues = [];
-    var offset = (new Date().getTimezoneOffset()) * 60000;
+    var d = new Date()
+    var offset = (d.getTimezoneOffset()) * 60000;
+    if (d.dst()) {
+        offset += 3600000
+    }
     var time_start = Date.parse(csvData[0].time);
     var count = {};
     for (var yKey in yKeys) {
