@@ -191,7 +191,6 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnl
                     var panel = dashboard.addPanel(place, fname, name);
                     panel.type = csvData[ii].type;
 
-
                     if (!csvData[ii].type) {
                         csvData[ii].type = "csv";
                     }
@@ -413,6 +412,7 @@ Dashboard.prototype.getPanelId = function(filename) {
     var filename2 = filenameArr[filenameArr.length - 1];
     var filename2Arr = filename2.split(".");
     var panelId = filename2Arr[0];
+    panelId = panelId.replace(" ", "_");
 
     return panelId;
 };
