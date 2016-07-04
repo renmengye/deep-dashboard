@@ -412,7 +412,7 @@ Dashboard.prototype.getPanelId = function(filename) {
     var filename2 = filenameArr[filenameArr.length - 1];
     var filename2Arr = filename2.split(".");
     var panelId = filename2Arr[0];
-    panelId = panelId.replace(" ", "_").replace("(", "").replace(")", "");
+    panelId = panelId.replace(" ", "_").replace("(", "__").replace(")", "__");
 
     return panelId;
 };
