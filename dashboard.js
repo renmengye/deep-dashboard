@@ -120,12 +120,17 @@ Dashboard.prototype.autoRefresh = function() {
 
 Dashboard.prototype.getXKeyFormat = function(xKey) {
     var floatFormatter = d3.format(",.2f");
-    var timeFormatter = d3.time.format("%H:%M:%S");
+    var absTimeFormatter = d3.time.format("%Y/%m/%d %H:%M");
+    var relTimeFormatter = d3.time.format("D%d %H:%M");
     if (this.options.xKey === "step") {
         return d3.format(",d");
-    } else if (this.options.xKey === "abs_time" || this.options.xKey === "rel_time") {
+    } else if (this.options.xKey === "abs_time") {
         return function(d) {
-            return timeFormatter(new Date(d));
+            return absTimeFormatter(new Date(d));
+        };
+    } else if (this.options.xKey === "rel_time") {
+        return function(d) {
+            return relTimeFormatter(new Date(d));
         };
     }
 };
