@@ -239,8 +239,6 @@ Dashboard.prototype.parseData = function(csvData) {
         }
     }
 
-    var subsample = this.getSubsampleRate(csvData.length);
-    var displayValues = [];
     var d = new Date()
     var offset = (d.getTimezoneOffset()) * 60000;
     if (d.dst()) {
@@ -251,26 +249,43 @@ Dashboard.prototype.parseData = function(csvData) {
     for (var yKey in yKeys) {
         count[yKey] = 0;
     }
+
     for (var ii = 0; ii < csvData.length; ++ii) {
-        var xVal;
-        if (this.options.xKey === "abs_time") {
-            xVal = Date.parse(csvData[ii].time);
-        } else if (this.options.xKey === "rel_time") {
-            xVal = Date.parse(csvData[ii].time) - time_start + offset;
-        } else {
-            xVal = csvData[ii][this.options.xKey];
-        }
         for (var yKey in yKeys) {
-            if (count[yKey] % subsample == 0) {
-                if (csvData[ii][yKey] !== "") {
-                    var col = yKeys[yKey];
-                    data[col].values.push({"x": xVal, "y": csvData[ii][yKey]});
-                }
+            if (csvData[ii][yKey] !== "") {
+                count[yKey]++;
             }
-            count[yKey]++;
         }
     }
-
+    var subsample = {};
+    for (var yKey in yKeys){
+        subsample[yKey] = this.getSubsampleRate(count[yKey]);
+        count[yKey] = 0;
+    }
+    
+    var getXVal = function(data, xKey) {
+        if (xKey === "abs_time") {
+            return Date.parse(data.time);
+        } else if (xKey === "rel_time") {
+            return Date.parse(data.time) - time_start + offset;
+        } else {
+            return data[xKey];
+        }
+    }
+    for (var ii = 0; ii < csvData.length; ++ii) {
+        for (var yKey in yKeys) {
+            if (csvData[ii][yKey] !== "") {
+                if (count[yKey] % subsample == 0) {
+                        var col = yKeys[yKey];
+                        data[col].values.push({
+                            "x": getXVal(csvData[ii], this.options.xKey), 
+                            "y": csvData[ii][yKey]
+                        });
+                }
+                count[yKey]++;
+            }
+        }
+    }
     return data;
 };
 
