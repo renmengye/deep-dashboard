@@ -262,7 +262,7 @@ Dashboard.prototype.parseData = function(csvData) {
         subsample[yKey] = this.getSubsampleRate(count[yKey]);
         count[yKey] = 0;
     }
-    
+
     var getXVal = function(data, xKey) {
         if (xKey === "abs_time") {
             return Date.parse(data.time);
@@ -275,7 +275,7 @@ Dashboard.prototype.parseData = function(csvData) {
     for (var ii = 0; ii < csvData.length; ++ii) {
         for (var yKey in yKeys) {
             if (csvData[ii][yKey] !== "") {
-                if (count[yKey] % subsample == 0) {
+                if (count[yKey] % subsample[yKey] == 0) {
                         var col = yKeys[yKey];
                         data[col].values.push({
                             "x": getXVal(csvData[ii], this.options.xKey), 
