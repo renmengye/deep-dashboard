@@ -8,3 +8,4 @@ henc_sparsity.csv,csv,Encoder hidden activation sparsity
 hdec_sparsity.csv,csv,Decoder hidden activation sparsity
 train_logp.csv,csv,Train log prob
 step_time.csv,csv,step time (ms)
+toyhist.csv,histogram,Toy Histogram

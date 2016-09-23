@@ -201,11 +201,14 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnl
                     }
                     if (csvData[ii].type === "csv") {
                         dashboard.addChart(panel);
-                    }
-                    else if (csvData[ii].type === "plain") {
+                    } else if (csvData[ii].type === "plain") {
                         dashboard.addPlainLog(panel);
-                    } else if (csvData[ii].type == "image") {
-                        dashboard.addImage(panel, dashboard.options.timeout);
+                    } else if (csvData[ii].type === "image") {
+                        dashboard.addImage(panel);
+                    } else if (csvData[ii].type === "histogram") {
+                        dashboard.addHistogram(panel);
+                    } else {
+                        console.log("Unknown type " + csvData[ii].type)
                     }
                   }
               }
@@ -361,7 +364,7 @@ Dashboard.prototype.updateLastModified = function(panel, add) {
     });
 };
 
-Dashboard.prototype.addChart = function(panel, timeout) {
+Dashboard.prototype.addChart = function(panel) {
     var dashboard = this;
     nv.addGraph(function() {
         // Load data
@@ -511,6 +514,168 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
     };
     update();
     setInterval(dashboard.schedule(update), dashboard.options.timeout);
+};
+
+Dashboard.prototype.parseHistogram = function(data) {
+    function hist(data, nbin, dmin, dmax) {
+        if (typeof dmin == 'undefined') {
+            dmin = Array.min(data);
+        }
+        if (typeof dmax == 'undefined') {
+            dmax = Array.max(data) + 1;
+        }
+        if (!nbin) {
+            nbin = 10;
+        }
+        var bins = [];
+        step = (dmax - dmin) / nbin;
+        for (var ii = 0; ii < nbin; ii++) {
+            bins.push({
+                x: ii * step,
+                y: 0
+            });
+        }
+        function addtobin(x) {
+            idx = Math.floor((x - dmin) / step);
+            bins[idx].y += 1;
+        }
+        data.map(addtobin);
+        return bins;
+    }
+
+    var series = data.split('\n');
+    var dmax = 0;
+    var dmin = 0;
+    var keys = [];
+    var values = [];
+    for (var ii = 0; ii < series.length; ii++) {
+        var sdata = series[ii].split(',');
+        if (sdata.length > 1) {
+            keys.push(sdata[0]);
+            var val = [];
+            for (var jj = 1; jj < sdata.length; jj++) {
+                val.push(parseFloat(sdata[jj]));
+            }
+            values.push(val);
+            if (ii == 0) {
+                dmax = Array.max(val) + 1;
+                dmin = Array.min(val);
+            } else {
+                dmax = Math.max(Array.max(val) + 1, dmax);
+                dmin = Math.min(Array.min(val), dmin);
+            }
+        }
+    }
+
+    var parsed_data = [];
+    for (var ii = 0; ii < keys.length; ii++) {
+        parsed_data[ii] = {};
+        parsed_data[ii].key = keys[ii];
+
+        var bins = hist(values[ii], 20, dmin, dmax);
+        for (var jj = 0; jj < bins.length; jj++) {
+            bins[jj].series = ii;
+        }
+        parsed_data[ii].values = bins;
+    }
+    return parsed_data;
+}
+
+Dashboard.prototype.updateHistogram = function(panel) {
+}
+
+Dashboard.prototype.addHistogram = function(panel) {
+    var dashboard = this;
+    //Generate some nice data.
+
+    function getDataToy() {
+        function getx() {
+            var x = [];
+            for (var ii = 0; ii < 100; ii++) {
+                x.push(Math.random());
+            }
+
+            function hist(data, nbin, dmin, dmax) {
+                if (typeof dmin == 'undefined') {
+                    dmin = Array.min(data);
+                }
+                if (typeof dmax == 'undefined') {
+                    dmax = Array.max(data) + 1;
+                }
+                if (!nbin) {
+                    nbin = 10;
+                }
+                bins = [];
+                step = (dmax - dmin) / nbin;
+                for (var ii = 0; ii < nbin; ii++) {
+                    bins.push({
+                        x: ii * step,
+                        y: 0
+                    });
+                }
+                function addtobin(x) {
+                    idx = Math.floor((x - dmin) / step);
+                    bins[idx].y += 1;
+                }
+                data.map(addtobin);
+                return bins;
+            }
+            return hist(x, 10, 0.0, 1.0);
+        }
+
+        var data = [];
+        for (var ii = 0; ii < 5; ii++) {
+            var values = [];
+            var bins = getx();
+            for (var jj = 0; jj < bins.length; jj++) {
+                bins[jj].series = ii;
+                // bins[jj].key = 'Stream #' + ii;
+            }
+            data.push({
+                key: 'Stream #' + ii,
+                values: bins
+            });
+        }
+        return data;
+    }
+    nv.addGraph(function() {
+
+        d3.text(panel.filename, function(error, data) {
+            parsed_data = dashboard.parseHistogram(data);
+
+            var chart = nv.models.multiBarChart()
+              .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+              .rotateLabels(0)      //Angle to rotate x-axis labels.
+              .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+              .groupSpacing(0.1)    //Distance between each group of bars.
+            ;
+
+            chart.xAxis
+                .tickFormat(d3.format(',.2f'));
+
+            chart.yAxis
+                .tickFormat(d3.format(',.2f'));
+
+            panel.placeholder.append("div")
+              .attr("id", "chart_panel_" + panel.id)
+              .attr("class", "chart_panel")
+              .append("svg")
+              .attr("id", "svg_" + panel.id)
+              // .datum(getDataToy())
+              .datum(parsed_data)
+              .call(chart)
+              .call(function() {
+                dashboard.updateLastModified(panel, true);
+              }
+              );
+            panel.chart = chart;
+            dashboard.updateHistogram(panel);
+            setInterval(dashboard.schedule(
+                    function() {dashboard.updateHistogram(panel)}), 
+                dashboard.options.timeout);
+        });
+
+    });
 };
 
 Dashboard.prototype.schedule = function(callback) {
