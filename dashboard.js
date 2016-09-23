@@ -587,7 +587,7 @@ Dashboard.prototype.updateHistogram = function(panel) {
 
     d3.text(panel.filename, function(error, data) {
         if (error) throw error;
-        var parsed_data = dashboard.parseData(data);
+        var parsed_data = dashboard.parseHistogram(data);
         // var limits = dashboard.getXYLimit(data);
         // chart.xDomain([limits[0], limits[1]]).yDomain([limits[2], limits[3]]);
         d3.select("#svg_" + panel.id).datum(parsed_data);
