@@ -237,7 +237,11 @@ Dashboard.prototype.parseData = function(csvData) {
     for (var key in csvData[0]) {
         if (key !== "step" && key !== "time") {
             yKeys[key] = col;
-            data.push({values: [], key: key, color: colors[col % colors.length]});
+            data.push({
+                values: [], 
+                key: key, 
+                // color: colors[col % colors.length]
+            });
             col++;
         }
     }
