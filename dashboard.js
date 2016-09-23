@@ -568,6 +568,7 @@ Dashboard.prototype.parseHistogram = function(data) {
     }
 
     var parsed_data = [];
+    var num_max = 0;
     for (var ii = 0; ii < keys.length; ii++) {
         parsed_data[ii] = {};
         parsed_data[ii].key = keys[ii];
@@ -575,11 +576,16 @@ Dashboard.prototype.parseHistogram = function(data) {
         var bins = hist(values[ii], 20, dmin, dmax);
         for (var jj = 0; jj < bins.length; jj++) {
             bins[jj].series = ii;
+            num_max = Math.max(bins[jj].y, num_max)
         }
         parsed_data[ii].values = bins;
+        parsed_data[ii].xmax = dmax;
+        parsed_data[ii].xmin = dmin;
+        parsed_data[ii].ymax = num_max;
+        parsed_data[ii].ymin = 0;
     }
     return parsed_data;
-}
+};
 
 Dashboard.prototype.updateHistogram = function(panel) {
     var chart = panel.chart;
@@ -588,15 +594,14 @@ Dashboard.prototype.updateHistogram = function(panel) {
     d3.text(panel.filename, function(error, data) {
         if (error) throw error;
         var parsed_data = dashboard.parseHistogram(data);
-        // var limits = dashboard.getXYLimit(data);
-        // chart.xDomain([limits[0], limits[1]]).yDomain([limits[2], limits[3]]);
+        // chart.xDomain([parsed_data[0].xmin, parsed_data[0].xmax])
+        //      .yDomain([parsed_data[0].ymin, parsed_data[0].ymax]);
         d3.select("#svg_" + panel.id).datum(parsed_data);
-        // chart.xAxis.axisLabel(dashboard.getXAxis(dashboard.options.xKey))
-        //            .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
+        // chart.xAxis.tickFormat(d3.format(',.2f'));
         chart.update();
         dashboard.updateLastModified(panel, false);
     });
-}
+};
 
 Dashboard.prototype.addHistogram = function(panel) {
     var dashboard = this;
