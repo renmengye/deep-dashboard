@@ -517,7 +517,7 @@ Dashboard.prototype.addPlainLog = function(panel, timeout) {
 };
 
 Dashboard.prototype.parseHistogram = function(data) {
-    function hist(data, nbin, dmin, dmax) {
+    function hist(data, dmin, dmax, nbin) {
         if (typeof dmin == 'undefined') {
             dmin = Array.min(data);
         }
@@ -525,7 +525,7 @@ Dashboard.prototype.parseHistogram = function(data) {
             dmax = Array.max(data) + 1;
         }
         if (!nbin) {
-            nbin = 10;
+            nbin = data.length / 100;
         }
         var bins = [];
         step = (dmax - dmin) / nbin;
@@ -573,7 +573,7 @@ Dashboard.prototype.parseHistogram = function(data) {
         parsed_data[ii] = {};
         parsed_data[ii].key = keys[ii];
 
-        var bins = hist(values[ii], 20, dmin, dmax);
+        var bins = hist(values[ii], dmin, dmax);
         for (var jj = 0; jj < bins.length; jj++) {
             bins[jj].series = ii;
             num_max = Math.max(bins[jj].y, num_max)
@@ -605,58 +605,6 @@ Dashboard.prototype.updateHistogram = function(panel) {
 
 Dashboard.prototype.addHistogram = function(panel) {
     var dashboard = this;
-    //Generate some nice data.
-
-    function getDataToy() {
-        function getx() {
-            var x = [];
-            for (var ii = 0; ii < 100; ii++) {
-                x.push(Math.random());
-            }
-
-            function hist(data, nbin, dmin, dmax) {
-                if (typeof dmin == 'undefined') {
-                    dmin = Array.min(data);
-                }
-                if (typeof dmax == 'undefined') {
-                    dmax = Array.max(data) + 1;
-                }
-                if (!nbin) {
-                    nbin = 10;
-                }
-                bins = [];
-                step = (dmax - dmin) / nbin;
-                for (var ii = 0; ii < nbin; ii++) {
-                    bins.push({
-                        x: ii * step,
-                        y: 0
-                    });
-                }
-                function addtobin(x) {
-                    idx = Math.floor((x - dmin) / step);
-                    bins[idx].y += 1;
-                }
-                data.map(addtobin);
-                return bins;
-            }
-            return hist(x, 10, 0.0, 1.0);
-        }
-
-        var data = [];
-        for (var ii = 0; ii < 5; ii++) {
-            var values = [];
-            var bins = getx();
-            for (var jj = 0; jj < bins.length; jj++) {
-                bins[jj].series = ii;
-                // bins[jj].key = 'Stream #' + ii;
-            }
-            data.push({
-                key: 'Stream #' + ii,
-                values: bins
-            });
-        }
-        return data;
-    }
     nv.addGraph(function() {
 
         d3.text(panel.filename, function(error, data) {
