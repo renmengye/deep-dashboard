@@ -582,6 +582,20 @@ Dashboard.prototype.parseHistogram = function(data) {
 }
 
 Dashboard.prototype.updateHistogram = function(panel) {
+    var chart = panel.chart;
+    var dashboard = this;
+
+    d3.text(panel.filename, function(error, data) {
+        if (error) throw error;
+        var parsed_data = dashboard.parseData(data);
+        // var limits = dashboard.getXYLimit(data);
+        // chart.xDomain([limits[0], limits[1]]).yDomain([limits[2], limits[3]]);
+        d3.select("#svg_" + panel.id).datum(parsed_data);
+        // chart.xAxis.axisLabel(dashboard.getXAxis(dashboard.options.xKey))
+        //            .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
+        chart.update();
+        dashboard.updateLastModified(panel, false);
+    });
 }
 
 Dashboard.prototype.addHistogram = function(panel) {
