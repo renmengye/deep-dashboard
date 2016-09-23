@@ -526,7 +526,7 @@ Dashboard.prototype.parseHistogram = function(data) {
             dmin = Array.min(data);
         }
         if (typeof dmax == 'undefined') {
-            dmax = Array.max(data) + 1;
+            dmax = Array.max(data) + 0.0001;
         }
         if (!nbin) {
             nbin = data.length / 100;
@@ -562,10 +562,10 @@ Dashboard.prototype.parseHistogram = function(data) {
             }
             values.push(val);
             if (ii == 0) {
-                dmax = Array.max(val) + 1;
+                dmax = Array.max(val) + 0.0001;
                 dmin = Array.min(val);
             } else {
-                dmax = Math.max(Array.max(val) + 1, dmax);
+                dmax = Math.max(Array.max(val) + 0.0001, dmax);
                 dmin = Math.min(Array.min(val), dmin);
             }
         }
