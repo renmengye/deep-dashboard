@@ -93,10 +93,11 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
         d3.csv(this.rootFolder + "catalog", function(error, csvData) {
             if (error) throw error;
             // TODO: sort by last modified date.
-            for (var ii = 0; 
-                ii < Math.min(csvData.length, options.maxToDisplay); ++ii) {
+            for (var ii = Math.min(csvData.length, options.maxToDisplay) - 1; 
+                     ii >= 0; --ii) {
+                var expId = csvData[ii].id;
                 setTimeout(function() {
-                    dashboard.addExperiment(place, csvData[ii].id, true)
+                    dashboard.addExperiment(place, expId, true)
                 }, 100 * ii);
             }
         });
