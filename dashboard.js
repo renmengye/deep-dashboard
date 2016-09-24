@@ -100,7 +100,7 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             csvData.forEach(function(elem, idx, arr) {
                 setTimeout(function() {
                     dashboard.addExperiment(place, elem.id, true);
-                }, 200 * idx);
+                }, 50 * idx);
             });
             // for (var ii = Math.min(csvData.length, options.maxToDisplay) - 1; 
             //          ii >= 0; --ii) {
