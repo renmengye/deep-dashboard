@@ -93,13 +93,22 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
         d3.csv(this.rootFolder + "catalog", function(error, csvData) {
             if (error) throw error;
             // TODO: sort by last modified date.
-            for (var ii = Math.min(csvData.length, options.maxToDisplay) - 1; 
-                     ii >= 0; --ii) {
-                var expId = csvData[ii].id;
-                setTimeout(function() {
-                    dashboard.addExperiment(place, expId, true)
-                }, 100 * ii);
+            displen = Math.min(csvData.length, options.maxToDisplay);
+            if (displen != csvData.length) {
+                csvData = csvData.slice(0, displen);
             }
+            csvData.forEach(function(elem, idx, arr) {
+                setTimeout(function() {
+                    dashboard.addExperiment(place, elem.id, true);
+                }, 100 * idx);
+            });
+            // for (var ii = Math.min(csvData.length, options.maxToDisplay) - 1; 
+            //          ii >= 0; --ii) {
+            //     var expId = csvData[ii].id;
+            //     setTimeout(function() {
+            //         dashboard.addExperiment(place, expId, true)
+            //     }, 100 * ii);
+            // }
         });
     }
 
