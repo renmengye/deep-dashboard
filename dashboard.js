@@ -95,7 +95,9 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             // TODO: sort by last modified date.
             for (var ii = 0; 
                 ii < Math.min(csvData.length, options.maxToDisplay); ++ii) {
-                dashboard.addExperiment(place, csvData[ii].id, true);
+                setTimeout(function() {
+                    dashboard.addExperiment(place, csvData[ii].id, true)
+                }, 100 * ii);
             }
         });
     }
