@@ -47,9 +47,6 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
          .attr("id", "settings")
          .call(function() {
             d3.select("#settings")
-              .append("h1")
-              .text("Settings");
-            d3.select("#settings")
               .append("div")
               .text("Auto-refresh: ")
               .append("input")
@@ -88,6 +85,13 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
          });
 
     if (experimentId) {
+        // d3.csv(this.rootFolder + "catalog", function(error, csvData) {
+        //     csvData.forEach(function(elem, idx, arr) {
+        //         if (elem.id == experimentId) {
+                    
+        //         }
+        //     });
+        // });
         this.addExperiment(place, experimentId, false);
     } else {
         d3.csv(this.rootFolder + "catalog", function(error, csvData) {
@@ -99,16 +103,9 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             }
             csvData.forEach(function(elem, idx, arr) {
                 setTimeout(function() {
-                    dashboard.addExperiment(place, elem.id, true);
+                    dashboard.addExperiment(place, elem.id, true, elem.desc);
                 }, 50 * idx);
             });
-            // for (var ii = Math.min(csvData.length, options.maxToDisplay) - 1; 
-            //          ii >= 0; --ii) {
-            //     var expId = csvData[ii].id;
-            //     setTimeout(function() {
-            //         dashboard.addExperiment(place, expId, true)
-            //     }, 100 * ii);
-            // }
         });
     }
 
@@ -162,7 +159,7 @@ Dashboard.prototype.getXAxis = function(xKey) {
     }
 }
 
-Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnly) {
+Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnly, subtitle) {
     var experimentFolder = this.rootFolder + experimentId + "/";
     var dashboard = this;
     d3.csv(experimentFolder + "catalog", function(error, csvData) {
@@ -174,6 +171,9 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnl
         }
 
         var divId = "exp_" + experimentId;
+        if (typeof subtitle == 'undefined') {
+            subtitle = '';
+        }
 
         // Set title.
         placeholder
@@ -181,9 +181,9 @@ Dashboard.prototype.addExperiment = function(placeholder, experimentId, titleOnl
           .attr("id", divId)
           .attr("class", "experiment")
           .append("h1")
-          .html("Experiment " + experimentId + 
-            " <a href='?id=" + 
-            experimentId + "'> &gt;&gt;</a>")
+          .html("<a href='?id=" + experimentId + "'> " + experimentId + "</a>")
+          .append("h3")
+          .html(subtitle)
           .call(function(){
                 if (!titleOnly) {
                 d3.select("#" + divId)
@@ -465,7 +465,8 @@ Dashboard.prototype.addPanel = function(placeholder, filename, name) {
             .attr("id", "panel_" + panel.id)
             .attr("class", "panel");
     panelplace = d3.select("#panel_" + panel.id);
-    panelplace.append("h2").html(name + "   <a href=#settings>^</a>");
+    // panelplace.append("h3").html(name + "   <a href=#settings>^</a>");
+    panelplace.append("h2").html(name);
     panel.placeholder = panelplace;
     this.allPanels[panel.id] = panel;
 
