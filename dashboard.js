@@ -101,6 +101,7 @@ var Dashboard = function(rootFolder, experimentId, placeholder, options) {
             if (displen != csvData.length) {
                 csvData = csvData.slice(0, displen);
             }
+            csvData.reverse();
             csvData.forEach(function(elem, idx, arr) {
                 setTimeout(function() {
                     dashboard.addExperiment(place, elem.id, true, elem.desc);
