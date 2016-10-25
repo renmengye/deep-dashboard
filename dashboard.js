@@ -549,7 +549,7 @@ Dashboard.prototype.parseHistogram = function(data) {
         step = (dmax - dmin) / nbin;
         for (var ii = 0; ii < nbin; ii++) {
             bins.push({
-                x: ii * step,
+                x: ii * step + dmin,
                 y: 0
             });
         }
