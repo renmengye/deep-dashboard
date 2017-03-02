@@ -336,10 +336,16 @@ Dashboard.prototype.updateChart = function(panel) {
     if (error) throw error;
     var data = dashboard.parseData(csvData);
     var limits = dashboard.getXYLimit(data);
+    console.log(chart)
     chart.xDomain([limits[0], limits[1]]).yDomain([limits[2], limits[3]]);
     d3.select("#svg_" + panel.id).datum(data);
     chart.xAxis.axisLabel(dashboard.getXAxis(dashboard.options.xKey))
            .tickFormat(dashboard.getXKeyFormat(dashboard.options.xKey));
+    if(document.getElementById("check_ylog_" + panel.id).checked) {
+      chart.yScale(d3.scale.log());
+    } else {
+      chart.yScale(d3.scale.linear());
+    }
     chart.update();
     dashboard.updateLastModified(panel, false);
   });
@@ -409,12 +415,26 @@ Dashboard.prototype.addChart = function(panel) {
       panel.placeholder.append("div")
         .attr("id", "chart_panel_" + panel.id)
         .attr("class", "chart_panel")
-        .append("svg")
         .attr("id", "svg_" + panel.id)
+        .append("svg")
         .datum(data)
         .call(chart)
         .call(function() {
         dashboard.updateLastModified(panel, true);
+        })
+        .call(function() {
+          panel.placeholder.append("div")
+          .attr("class", "chart_control")
+          .text("y log scale")
+          .append("input")
+          .attr("type", "checkbox")
+          .attr("id", "check_ylog_" + panel.id)
+          .call(function() {
+            document.getElementById("check_ylog_" + panel.id)
+                .onchange = function() {
+                  dashboard.updateChart(panel);
+                }.bind(dashboard);
+          });
         });
       panel.chart = chart;
       dashboard.updateChart(panel);
@@ -452,14 +472,12 @@ Dashboard.prototype.getPanelId = function(filename) {
   var filename2Arr = filename2.split(".");
   var panelId = filename2Arr[0];
   panelId = panelId.replace(/ /g, "_").replace(/\(/g, "_").replace(/\)/g, "_").replace(/\//g, "_").replace(/-/g, "_");
-  console.log(panelId)
   return panelId;
 };
 
 Dashboard.prototype.addPanel = function(placeholder, filename, name) {
   var panel = {};
   panel.id = this.getPanelId(filename);
-  console.log(panel.id)
   panel.filename = filename;
   panel.name = name;
   placeholder.append("div")

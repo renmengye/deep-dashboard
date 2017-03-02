@@ -65,6 +65,10 @@ html, body {
     height: 300px;
 }
 
+.chart_control {
+    margin-left: 20px;
+}
+
 .raw_log {
     margin-left: 20px;
 }
